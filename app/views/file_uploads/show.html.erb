@@ -1,0 +1,43 @@
+<p style="color: green"><%= notice %></p>
+
+<h1><%= @file_upload.name %></h1>
+<%= form_with url: chat_file_upload_path(@file_upload), local: true, method: :post do |form| %>
+  <div class="field">
+    <%= form.label :message %>
+    <%= form.text_area :message %>
+  </div>
+
+  <div class="actions">
+    <%= form.submit 'Send' %>
+  </div>
+<% end %>
+
+<div id="chat-response"></div>
+
+<script>
+  document.addEventListener("DOMContentLoaded", () => {
+    const form = document.querySelector("form");
+    form.addEventListener("submit", (event) => {
+      event.preventDefault();
+      const data = new FormData(form);
+      fetch(form.action, {
+        method: "POST",
+        body: data,
+        headers: {
+          "X-CSRF-Token": document.querySelector('meta[name="csrf-token"]').content
+        }
+      })
+      .then(response => response.json())
+      .then(data => {
+        document.getElementById("chat-response").innerText = data.choices[0].message.content;
+      });
+    });
+  });
+</script>
+
+<div>
+  <%= link_to "Edit this file upload", edit_file_upload_path(@file_upload) %> |
+  <%= link_to "Back to file uploads", file_uploads_path %>
+
+  <%= button_to "Destroy this file upload", @file_upload, method: :delete %>
+</div>
